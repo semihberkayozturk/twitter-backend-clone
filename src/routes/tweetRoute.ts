@@ -7,3 +7,5 @@ const router = express.Router();
 router
     .route("/:id")
     .get(getTweet)
+
+export default router;

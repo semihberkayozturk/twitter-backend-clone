@@ -1,6 +1,7 @@
 import catchAsync from "../utils/catchAsync";
 import { Response,Request,NextFunction } from "express";
-import client from "../db/db";
+import client from "../db/config";
+import AppError from "../utils/appError";
 
 export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
     const query = {
