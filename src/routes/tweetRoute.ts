@@ -1,4 +1,4 @@
-import { getTweet } from './../controllers/tweetController';
+import { deleteTweet, getTweet } from './../controllers/tweetController';
 import express from "express";
 
 const router = express.Router();
@@ -7,5 +7,6 @@ const router = express.Router();
 router
     .route("/:id")
     .get(getTweet)
+    .delete(deleteTweet)
 
 export default router;

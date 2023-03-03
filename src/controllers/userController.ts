@@ -22,11 +22,7 @@ export const getUser = catchAsync(async (req: Request, res: Response, next: Next
 });
 
 export const deleteUser = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
-    const selectQuery = {
-        text:'SELECT * FROM users WHERE username = $1',
-        values: [req.params.username]
-    };
-    const selectResult = await client.query(selectQuery);
+    const selectResult = await client.query(`SELECT * FROM users WHERE username = '${req.params.username}'`);
     if(selectResult.rowCount === 0){
         return next(new AppError("User not found",404));
     }
