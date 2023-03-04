@@ -2,22 +2,12 @@ import client from "../db/config";
 import { Request,Response,NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
+import {User} from "../types/user";
 
-interface ReqWithUser extends Request {
+export interface ReqWithUser extends Request {
     user: {
         id:number;
     };
-};
-
-interface User {
-    id:number,
-    username:string,
-    email:string,
-    password:string,
-    bio:string,
-    avatar:string,
-    phone:string,
-    status:string
 };
 
 export const getUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -57,27 +47,27 @@ export const deleteUser = catchAsync(async(req:Request,res:Response,next:NextFun
 //It will work after implementing login and signup functions
 export const deleteMe = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
     const {id} = req.user;
-    await client.query(`DELETE FROM users WHERE id = '${id}'`)
+    await client.query<User>(`DELETE FROM users WHERE id = '${id}'`)
     res.status(204).json({
         status:"success",
         data:null
     })
 });
 
+//UPDATE ME?
 export const updateUser = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
     const findUser = await client.query(`SELECT * FROM users WHERE username = '${req.params.username}'`);
     if(findUser.rowCount === 0)return next(new AppError("User not found!",404));
 
-    //const fields = Object.keys(req.body);
-    await console.log(req.body);
-    //const values = fields.map((field,index) => `${field} = $${index+1}`).join(', ');
-   //await console.log(values);
+    const fields = Object.keys(req.body);
+    const values = fields.map((field) => req.body[field]);
+    const updates = fields.map((field,index) => `${field} = $${index+1}`).join(', ');
 
-    /*const query = {
-        text:"UPDATE users SET ${updates} WHERE username = $${fields.length+1}}",
-        values:[values,req.params.username]
+    const query = {
+        text:`UPDATE users SET ${updates} WHERE username = $${fields.length+1}`,
+        values:[...values,req.params.username]
     };
-    */
+    await client.query(query);
     res.status(204).json({
         status:"success",
         data:null

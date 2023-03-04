@@ -5,7 +5,6 @@ const handleJwtError = () => new AppError("Invalid JWT token. Please log in agai
 const handleJwtExpiration = () => new AppError("Token has expired! Please log in again!",401);
 
 //Send Error based on environment
-
 const sendDevError = (err,res) => {
     res.status(err.statusCode).json({
         status:err.status,

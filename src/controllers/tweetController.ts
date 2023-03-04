@@ -2,6 +2,11 @@ import catchAsync from "../utils/catchAsync";
 import { Response,Request,NextFunction } from "express";
 import client from "../db/config";
 import AppError from "../utils/appError";
+import { User} from "../types/user";
+
+export interface ReqWithUser extends Request {
+    user: User
+};
 
 export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
     const query = {
@@ -28,5 +33,22 @@ export const deleteTweet =  catchAsync(async (req:Request,res:Response,next:Next
     res.status(204).json({
         status:"success",
         data:null
+    });
+});
+
+export const createTweet = catchAsync(async (req:ReqWithUser,res:Response,next:NextFunction) => {
+    //login,signup implemente ettikten sonra user_id nin karsisina req.user.id gelmeli
+    const [{tweet},user_id] = [req.body,1];
+    const query = {
+        text:`INSERT INTO tweets(tweet,user_id) VALUES($1,$2) RETURNING *`,
+        values: [tweet,user_id]
+    };
+    const {rows} = await client.query(query);
+
+    res.status(201).json({
+        status:"success",
+        data: {
+            tweet:rows[0]
+        }
     });
 });

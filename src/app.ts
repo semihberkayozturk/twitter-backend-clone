@@ -11,10 +11,9 @@ app.use(express.json());
 app.use(helmet());
 
 const limiter = rateLimit({
-    //Max request that can be made
     max:100,
     //time window in milliseconds within which the maximum number of requests can be made.
-    windowMs:60*60*100,//1 hour
+    windowMs:60*60*100,//100(max) requests in 1 hour
     message:"Too many requests from this IP! Please try later!"
 });
 
