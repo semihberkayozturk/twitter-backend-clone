@@ -21,6 +21,7 @@
     "homepage": "https://github.com/semihberkayozturk/twitter-backend-clone#readme",
     "devDependencies": {
         "@types/node": "^18.14.2",
+        "@types/redis": "^4.0.11",
         "typescript": "^4.9.5"
     },
     "dependencies": {

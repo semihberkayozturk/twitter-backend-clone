@@ -21,3 +21,5 @@ export const signUp = catchAsync(async(req:Request,res:Response,next:NextFunctio
 
 export const logIn = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
 });
+
+//req.session???
