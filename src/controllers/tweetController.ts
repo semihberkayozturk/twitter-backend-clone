@@ -3,7 +3,7 @@ import { Response,Request,NextFunction } from "express";
 import client from "../db/config";
 import AppError from "../utils/appError";
 import { User} from "../types/user";
-import redis from "redis";
+import * as redis from "redis";
 
 let redisClient = redis.createClient({url:process.env.REDIS_URL})
 redisClient.on("connect",() => console.log("Redis Connection Is Successful!"));
@@ -65,7 +65,7 @@ export const createTweet = catchAsync(async (req:ReqWithBodyAndUser,res:Response
         });
       };
     //login,signup implemente ettikten sonra user_id nin karsisina req.user.id gelmeli
-    const [{tweet},user_id] = [req.body,1];
+    const [{tweet},user_id] = [req.body,req.user.id];
     const query = {
         text:`INSERT INTO tweets(tweet,user_id) VALUES($1,$2) RETURNING *`,
         values: [tweet,user_id]
