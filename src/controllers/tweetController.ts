@@ -34,7 +34,6 @@ export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunct
             return next(new AppError("Tweet not found!",404));
         }
         const tweet = rows[0];
-        //expiration olmuyor!
         await redisClient.set(`tweet:${tweetId}`, JSON.stringify(tweet));
 
         console.log("Caching the tweet!");
@@ -57,6 +56,7 @@ export const deleteTweet =  catchAsync(async (req:Request,res:Response,next:Next
     });
 });
 
+//should implement some functions to protectin etc. setEntryUserId etc.
 export const createTweet = catchAsync(async (req:ReqWithBodyAndUser,res:Response,next:NextFunction) => {
     if (!req.body.tweet || typeof req.body.tweet !== 'string') {
         return res.status(400).json({
@@ -64,7 +64,6 @@ export const createTweet = catchAsync(async (req:ReqWithBodyAndUser,res:Response
           message: 'Invalid request body!',
         });
       };
-    //login,signup implemente ettikten sonra user_id nin karsisina req.user.id gelmeli
     const [{tweet},user_id] = [req.body,req.user.id];
     const query = {
         text:`INSERT INTO tweets(tweet,user_id) VALUES($1,$2) RETURNING *`,

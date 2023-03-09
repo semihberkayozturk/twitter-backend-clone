@@ -4,6 +4,7 @@ import tweetRoute from "./routes/tweetRoute";
 import AppError from "./utils/appError";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import globalErrorHandler from "../src/controllers/errorController";
 
 const app = express();
 app.use(express.json());
@@ -19,11 +20,17 @@ const limiter = rateLimit({
 
 app.use("tw/api",limiter);
 
+app.use(express.json({
+    limit: "10kb"
+}));
+
 app.use("/tw/api/user",userRoute);
 app.use("/tw/api/tweet",tweetRoute);
 
 app.all("*",(req,res,next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this API!`,404));
 });
+
+app.use(globalErrorHandler);
 
 export default app;

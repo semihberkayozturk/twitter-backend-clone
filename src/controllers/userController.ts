@@ -44,7 +44,6 @@ export const deleteUser = catchAsync(async(req:Request,res:Response,next:NextFun
     })
 });
 
-//It will work after implementing login and signup functions
 export const deleteMe = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
     const {id} = req.user;
     await client.query<User>(`DELETE FROM users WHERE id = '${id}'`)
@@ -54,7 +53,6 @@ export const deleteMe = catchAsync(async(req:ReqWithUser,res:Response,next:NextF
     })
 });
 
-//UPDATE ME?
 export const updateUser = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
     const findUser = await client.query(`SELECT * FROM users WHERE username = '${req.params.username}'`);
     if(findUser.rowCount === 0)return next(new AppError("User not found!",404));
