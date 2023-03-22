@@ -2,7 +2,7 @@ interface AppErrorProps {
     statusCode:number;
 };
 
-class AppError extends Error{
+class AppError extends Error implements AppErrorProps{
     status:string
     statusCode:number
     isOperational:boolean

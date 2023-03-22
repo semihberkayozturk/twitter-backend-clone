@@ -1,10 +1,18 @@
-import { NextFunction } from 'express';
+import { NextFunction,Request,Response } from 'express';
 import jwt from "jsonwebtoken";
 import catchAsync from "../utils/catchAsync";
 import client from '../db/config';
 import { User } from '../types/user';
 import { ReqWithBodyAndUser } from './tweetController';
 import AppError from '../utils/appError';
+import { promisify } from 'util';
+
+export interface ReqWithUser extends Request {
+    user: {
+        id:number;
+    };
+};
+
 
 //Creates JWT by taking id as parameter
 const signToken = id => {
@@ -31,7 +39,7 @@ const createSendToken = (user,statusCode,res) => {
         data: {
             user
         }
-    })
+    });
 };
 
 export const signUp = catchAsync(async(req:ReqWithBodyAndUser,res:Response,next:NextFunction) => {
@@ -54,4 +62,46 @@ export const logIn = catchAsync(async(req:ReqWithBodyAndUser,res:Response,next:N
         return next(new AppError("Incorrect email or password",401));
     }
     createSendToken(rows[0],200,res);
+});
+
+export const protect = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
+    let token;
+    if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+        token = req.headers.authorization.split(" ")[1];
+    };
+    if(!token){
+        return next(new AppError("You're not logged in! Please log in and try again.",401));
+    };
+    //Verifying the JWT
+    const verifyToken = promisify(jwt.verify) as (
+        token:string,
+        secretOrPublicKey:jwt.Secret,
+    ) => Promise<unknown>;
+
+    const decoded = await verifyToken(token,process.env.JWT_SECRET as string) as {id:string};
+    const {rows} = await client.query(`SELECT * FROM users WHERE id = '${decoded.id}'`)
+    const freshUser = rows[0].id;
+    if(!freshUser){
+        return next(new AppError("The user belonging to this token does no longer exist",401));
+    };
+    req.user = freshUser;
+    next();
+});
+
+export const restrictTo = (...roles) => {
+    return (req:ReqWithUser,res:Response,next:NextFunction) => {
+        if(!roles.includes(req.user.id)){
+            return next(new AppError("You do not have permission to perform this action",403));
+        };
+        next();
+    };
+};
+
+export const forgotPassword = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
+    const {email} = req.body;
+    const {rows} = await client.query(`SELECT * FROM users WHERE email = '${email}'`);
+    const user = rows[0];
+    if(!user){
+        return next(new AppError("There is no user with this email address",404));
+    };
 });
