@@ -42,12 +42,15 @@ UserModel.init(
   }
 );
 
-UserModel.sync({ alter: true })
+
+(async () => {
+  await UserModel.sync({ alter: true })
   .then(() => {
     console.log("User table synchoronized successfully!")
   })
   .catch((err) => {
         console.error("Unable to sync the User table:", err);
  });
+})();
 
 export default UserModel;

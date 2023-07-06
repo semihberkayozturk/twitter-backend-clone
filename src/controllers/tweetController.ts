@@ -1,6 +1,5 @@
 import catchAsync from "../utils/catchAsync";
 import { Response,Request,NextFunction } from "express";
-import client from "../db/config";
 import AppError from "../utils/appError";
 import { User} from "../types/user";
 import * as redis from "redis";
@@ -26,22 +25,21 @@ export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunct
             data:JSON.parse(cacheValue)
         })
     }else{
-        const query = {
-            text:"SELECT * FROM tweets WHERE id = $1",
-            values:[req.params.id]
+        try {
+            const tweet = await TweetModel.findByPk(tweetId);
+            if (!tweet) {
+              return next(new AppError('Tweet not found!', 404));
+            }
+            await redisClient.set(`tweet:${tweetId}`, JSON.stringify(tweet));
+      
+            res.status(200).json({
+              status: 'success',
+              data: tweet,
+            });
+          }
+        catch (error) {
+        next(error);
         }
-        const {rows} = await client.query(query);
-        if(rows.length === 0){
-            return next(new AppError("Tweet not found!",404));
-        }
-        const tweet = rows[0];
-        await redisClient.set(`tweet:${tweetId}`, JSON.stringify(tweet));
-
-        console.log("Caching the tweet!");
-        res.status(200).json({
-            status:"success",
-            data:tweet
-        })
     }
 });
 
@@ -71,16 +69,14 @@ export const createTweet = catchAsync(async (req:ReqWithBodyAndUser,res:Response
         });
       };
     const [{tweet},user_id] = [req.body,req.user.id];
-    const query = {
-        text:`INSERT INTO tweets(tweet,user_id) VALUES($1,$2) RETURNING *`,
-        values: [tweet,user_id]
-    };
-    const {rows} = await client.query(query);
-
-    res.status(201).json({
-        status:"success",
-        data: {
-            tweet:rows[0]
-        }
-    });
+    try {
+        const newTweet = await TweetModel.create({tweet,user_id});
+        res.status(201).json({
+            status:"success",
+            data:newTweet
+        });
+    }
+    catch(error){
+        next(error);
+    }
 });

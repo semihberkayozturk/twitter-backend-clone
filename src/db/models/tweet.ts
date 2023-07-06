@@ -47,12 +47,14 @@ TweetModel.init(
   }
 );
 
-TweetModel.sync({ alter: true })
+(async () => {
+  await TweetModel.sync({ alter: true })
   .then(() => {
     console.log("Tweet table synchoronized successfully!")
   })
   .catch((err) => {
         console.error("Unable to sync the Tweet table:", err);
  });
+})();
 
 export default TweetModel;
