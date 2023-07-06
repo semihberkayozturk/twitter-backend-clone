@@ -1,6 +1,6 @@
 # Twitter Backend Clone
 
-This is a Twitter backend clone built with Node.js using TypeScript, PostgreSQL, Docker, Redis, and Postman. The purpose of this project is to provide a RESTful API for managing users, tweets, and comments in a manner similar to the Twitter social media platform.
+This is a Twitter backend clone built with Node.js using TypeScript, PostgreSQL, Docker, Redis, and Postman. The purpose of this project is to provide a RESTful API for managing users, tweets, and comments in a manner similar to the Twitter
 
 ## Features
 
