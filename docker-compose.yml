@@ -1,0 +1,12 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:13.5    
+    restart: always
+    environment:            
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=twitter
+    ports:
+      - '8080:8080' 
+      TODO        

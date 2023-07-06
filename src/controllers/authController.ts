@@ -1,11 +1,10 @@
 import { NextFunction,Request,Response } from 'express';
 import jwt from "jsonwebtoken";
 import catchAsync from "../utils/catchAsync";
-import client from '../db/config';
-import { User } from '../types/user';
 import { ReqWithBodyAndUser } from './tweetController';
 import AppError from '../utils/appError';
 import { promisify } from 'util';
+import UserModel from '../db/models/user';
 
 export interface ReqWithUser extends Request {
     user: {
@@ -14,16 +13,14 @@ export interface ReqWithUser extends Request {
 };
 
 
-//Creates JWT by taking id as parameter
 const signToken = id => {
     return jwt.sign({id},process.env.JWT_SECRET as string,{
         expiresIn:process.env.JWT_EXPIRES_IN
     });
 };
 
-const createSendToken = (user,statusCode,res) => {
+const createSendToken = (user,statusCode:Number,res) => {
     const token = signToken(user.id)
-    //send the JWT as cookie
     const cookieOptions = {
         expires:new Date(Date.now() + 100 * 24 * 60 * 60 * 1000),
         httpOnly:true,
@@ -42,26 +39,36 @@ const createSendToken = (user,statusCode,res) => {
     });
 };
 
-export const signUp = catchAsync(async(req:ReqWithBodyAndUser,res:Response,next:NextFunction) => {
-    const createUserQuery = {
-        text:`INSERT INTO users(username,password,bio,avatar,phone,email) VALUES($1,$2,$3,$4,$5,$6)`,
-        values: [req.body.username,req.body.password,req.body.bio,req.body.avatar,req.body.phone,req.body.email]
-    };
-    await client.query<User>(createUserQuery);
-    const {rows} = await client.query(`SELECT * FROM users WHERE username = '${req.body.username}'`);
-    createSendToken(rows[0],201,res);
-});
+export const signUp = catchAsync(async(req:ReqWithBodyAndUser,res:Response,next:NextFunction) => {{
+    const {username, password, bio, avatar, phone, email} = req.body;
+    try {
+        const createdUser = UserModel.create({
+            username,
+            password,
+            bio,
+            avatar,
+            phone,
+            email
+        });
+        const user = await UserModel.findOne({where: {username}});
+        createSendToken(user,201,res);
+    }
+    catch(err) {
+        return next(new AppError("Error creating user",500));
+    }
+}});
 
 export const logIn = catchAsync(async(req:ReqWithBodyAndUser,res:Response,next:NextFunction) => {
     const {email,password} = req.body;
     if(!email || !password){
         return next(new AppError("You need to provide an email and a password",401));
     }
-    const {rows} = await client.query(`SELECT * FROM users WHERE email = '${req.body.email}'`);
-    if(rows.length === 0 || rows[0].password != password){
+    const user = await UserModel.findOne({ where: { email } });
+
+    if(!user || user.password != password){
         return next(new AppError("Incorrect email or password",401));
     }
-    createSendToken(rows[0],200,res);
+    createSendToken(user,200,res);
 });
 
 export const protect = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
@@ -79,11 +86,10 @@ export const protect = catchAsync(async(req:ReqWithUser,res:Response,next:NextFu
     ) => Promise<unknown>;
 
     const decoded = await verifyToken(token,process.env.JWT_SECRET as string) as {id:string};
-    const {rows} = await client.query(`SELECT * FROM users WHERE id = '${decoded.id}'`)
-    const freshUser = rows[0].id;
+    const freshUser = await UserModel.findOne({where: {id: decoded.id}});
     if(!freshUser){
-        return next(new AppError("The user belonging to this token does no longer exist",401));
-    };
+        return next(new AppError("The user belonging to this token no longer exists",401));
+    }
     req.user = freshUser;
     next();
 });
@@ -99,9 +105,9 @@ export const restrictTo = (...roles) => {
 
 export const forgotPassword = catchAsync(async(req:ReqWithUser,res:Response,next:NextFunction) => {
     const {email} = req.body;
-    const {rows} = await client.query(`SELECT * FROM users WHERE email = '${email}'`);
-    const user = rows[0];
+    const user = await UserModel.findOne({where: {email}});
     if(!user){
-        return next(new AppError("There is no user with this email address",404));
-    };
+        return next(new AppError("There is no user with that email address",404));
+    }
+    //TODO: Generate random reset token, send email to user
 });

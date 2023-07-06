@@ -1,5 +1,10 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
-const sequelize = new Sequelize(`postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/twitter`);
+import { DataTypes, Model, Sequelize } from 'sequelize';
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/twitter?sslmode=disable`,
+  {
+    logging: false
+  }
+);
 
 class TweetModel extends Model {}
 

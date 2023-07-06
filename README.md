@@ -20,4 +20,3 @@ This is a Twitter backend clone built with Node.js using TypeScript, PostgreSQL,
 * Docker
 * Redis (Caching)
 * Postman (API Manual Testing)
-* Jest (Testing)

@@ -1,7 +1,15 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
-const sequelize = new Sequelize(`postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/twitter`);
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/twitter?sslmode=disable`,
+  {
+    logging: false
+  }
+);
 
-class UserModel extends Model {}
+class UserModel extends Model {
+  declare id : number;
+  declare password : string;
+}
 
 UserModel.init(
   {
@@ -30,7 +38,8 @@ UserModel.init(
       unique: true
     },
     password: {
-      type: DataTypes.STRING(50)
+      type: DataTypes.STRING(50),
+      allowNull: false
     }
   },
   {
