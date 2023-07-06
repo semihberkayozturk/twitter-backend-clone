@@ -20,7 +20,7 @@
     },
     "homepage": "https://github.com/bbsemih/twitter-backend-clone#readme",
     "devDependencies": {
-        "@types/node": "^18.14.2",
+        "@types/node": "^18.16.19",
         "@types/redis": "^4.0.11",
         "typescript": "^4.9.5"
     },
@@ -36,6 +36,7 @@
         "nodemon": "^2.0.20",
         "pg": "^8.9.0",
         "redis": "^4.6.5",
+        "sequelize": "^6.32.1",
         "ts-node": "^10.9.1",
         "util": "^0.12.5"
     }

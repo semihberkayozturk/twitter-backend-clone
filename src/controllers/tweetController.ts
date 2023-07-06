@@ -4,6 +4,7 @@ import client from "../db/config";
 import AppError from "../utils/appError";
 import { User} from "../types/user";
 import * as redis from "redis";
+import TweetModel from "../db/models/tweet";
 
 let redisClient = redis.createClient({url:process.env.REDIS_URL})
 redisClient.on("connect",() => console.log("Redis Connection Is Successful!"));
@@ -44,16 +45,21 @@ export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunct
     }
 });
 
-export const deleteTweet =  catchAsync(async (req:Request,res:Response,next:NextFunction) => {
-    const resultQuery = await client.query(`SELECT * FROM tweets WHERE id = '${req.params.id}'`);
-    if(resultQuery.rowCount === 0){
-        return next(new AppError("Tweet was not found!",404));
+export const deleteTweet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+      const tweet = await TweetModel.findByPk(id);
+      if (!tweet) {
+        return next(new AppError('Tweet was not found!', 404));
+      }
+      await tweet.destroy();
+      res.status(204).json({
+        status: 'success',
+        data: null,
+      });
+    } catch (error) {
+      next(error);
     }
-    await client.query(`DELETE FROM tweets WHERE id = '${req.params.id}'`);
-    res.status(204).json({
-        status:"success",
-        data:null
-    });
 });
 
 //should implement some functions to protectin etc. setEntryUserId etc.

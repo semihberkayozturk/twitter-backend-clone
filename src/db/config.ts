@@ -1,4 +1,18 @@
 import { Client } from "pg";
+import { Sequelize } from "sequelize";
+
+async function connectToSequelize() {
+    const sequelize = new Sequelize(
+      `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/twitter`
+    );
+  
+    try {
+      await sequelize.authenticate();
+      console.log("Connected to Sequelize!");
+    } catch (error) {
+      console.error("Unable to connect to the Sequelize:", error);
+    }
+};
 
 const client = new Client({
     user: "postgres",
@@ -9,6 +23,7 @@ const client = new Client({
 });
 
 client.connect();
+connectToSequelize();
 
 client.query('SELECT NOW()', (err,res) => {
     if(err){

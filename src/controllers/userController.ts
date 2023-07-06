@@ -3,6 +3,7 @@ import { Request,Response,NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import {User} from "../types/user";
+import UserModel from '../db/models/user';
 
 export interface ReqWithUser extends Request {
     user: {
@@ -11,21 +12,21 @@ export interface ReqWithUser extends Request {
 };
 
 export const getUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const query = {
-        text: 'SELECT * FROM Users WHERE username = $1',
-        values: [req.params.username]
-    };
-    const {rows} = await client.query<User>(query)
-    if (rows.length === 0) {
-        return next(new AppError("User not found", 404));
-    }
-    const user = rows[0];
-    res.status(200).json({
-        status: "success",
+    const { username } = req.params;
+    try {
+      const user = await UserModel.findOne({ where: { username } });
+      if (!user) {
+        return next(new AppError('User not found', 404));
+      }
+      res.status(200).json({
+        status: 'success',
         data: {
-            user
-        }
-    });
+          user,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
 });
 
 export const deleteUser = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
