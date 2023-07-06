@@ -50,7 +50,7 @@ TweetModel.init(
 (async () => {
   await TweetModel.sync({ alter: true })
   .then(() => {
-    console.log("Tweet table synchoronized successfully!")
+    console.log("Tweet table synchronized successfully!")
   })
   .catch((err) => {
         console.error("Unable to sync the Tweet table:", err);

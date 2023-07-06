@@ -5,12 +5,11 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "start": "nodemon --exec ts-node prod/server.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "nodemon --exec ts-node prod/server.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/semihberkayozturk/twitter-backend-clone.git"
+        "url": "git+https://github.com/bbsemih/twitter-backend-clone.git"
     },
     "keywords": [],
     "author": "",

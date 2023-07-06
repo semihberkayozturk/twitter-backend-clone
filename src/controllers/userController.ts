@@ -10,7 +10,20 @@ export interface ReqWithUser extends Request {
     };
 };
 
-export const getUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+interface GetUserRequest extends Request {
+  params: {
+    username: string;
+  };
+}
+
+interface UpdateUserRequest extends Request {
+  params: {
+    username: string;
+  };
+  body: Partial<User>;
+}
+
+export const getUser = catchAsync(async (req: GetUserRequest, res: Response, next: NextFunction) => {
     const { username } = req.params;
     try {
       const user = await UserModel.findOne({ where: { username } });
@@ -56,7 +69,7 @@ export const deleteMe = catchAsync(async(req:ReqWithUser,res:Response,next:NextF
     });
 });
 
-export const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = catchAsync(async (req: UpdateUserRequest, res: Response, next: NextFunction) => {
   const { username } = req.params;
   try {
     const user = await UserModel.findOne({ where: { username } });

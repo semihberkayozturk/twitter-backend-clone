@@ -46,7 +46,7 @@ UserModel.init(
 (async () => {
   await UserModel.sync({ alter: true })
   .then(() => {
-    console.log("User table synchoronized successfully!")
+    console.log("User table synchronized successfully!")
   })
   .catch((err) => {
         console.error("Unable to sync the User table:", err);
