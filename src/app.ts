@@ -7,8 +7,8 @@ import rateLimit from "express-rate-limit";
 import globalErrorHandler from "../src/controllers/errorController";
 import swaggerUi from "swagger-ui-express";
 import YAML from "js-yaml";
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(express.json());
@@ -32,10 +32,9 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/tweet", tweetRoute);
 
 // Swagger configuration
-//let swaggerPath = path.join(__dirname, "doc", "swagger.yaml")
-const swaggerDocument = YAML.load(fs.readFileSync("../doc/swagger.yaml", "utf8"));
+const swaggerDocument = YAML.load(fs.readFileSync(path.resolve(__dirname, "../src/doc/swagger.yaml"), "utf8"));
 
-app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))  ;
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this API!`, 404));
