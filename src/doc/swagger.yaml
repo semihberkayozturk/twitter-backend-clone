@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   version: 1.0.0
-  title: twitter-backend-clone
+  title: twitter-backend-clone  
   description: |
     API documentation for the Twitter backend clone written in Node.js.
-    Repository can be found at [github.com/bbsemih/twitter-backend-clone](https://github.com/bbsemih/twitter-backend-clone)
+    Repository can be found at: [github.com/bbsemih/twitter-backend-clone](https://github.com/bbsemih/twitter-backend-clone)
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -33,7 +33,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/ErrorResponse'
-
     delete:
       summary: Delete user by username
       responses:
@@ -45,6 +44,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnathorizedError'
 
     put:
       summary: Update user by username
@@ -63,6 +68,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnathorizedError'
 
   /api/v1/tweet/{id}:
     parameters:
@@ -100,6 +111,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnathorizedError'
 
   /api/v1/tweet:
     post:
@@ -123,8 +140,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnathorizedError'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authorization header. Provide a valid access token to access the endpoints.
+      flows:
+        authorizationCode: 
+
   schemas:
     User:
       type: object
@@ -213,6 +245,12 @@ components:
           type: integer
           format: int32
   responses:
+    UnathorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/responses/ErrorResponse'
     ErrorResponse:
       type: object
       properties:
@@ -227,10 +265,11 @@ components:
       required:
         - status
         - message
-  
   # Reusable path, query, header and cookie parameters TODO
   parameters: {}
 
+security:
+    - bearerAuth: []  
 
 servers:
   - url: 'http://localhost:3000/api/v1/docs'

@@ -19,7 +19,7 @@ const limiter = rateLimit({
   max: 100,
   // Time window in milliseconds within which the maximum number of requests can be made.
   windowMs: 60 * 60 * 100, // 100(max) requests in 1 hour
-  message: "Toomany requests from this IP! Please try later!"
+  message: "Too many requests from this IP! Please try later!"
 });
 
 app.use("/api/v1", limiter);
@@ -33,7 +33,6 @@ app.use("/api/v1/tweet", tweetRoute);
 
 // Swagger configuration
 const swaggerDocument = YAML.load(fs.readFileSync(path.resolve(__dirname, "../src/doc/swagger.yaml"), "utf8"));
-
 app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.all("*", (req, res, next) => {
