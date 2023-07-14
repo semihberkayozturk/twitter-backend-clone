@@ -6,7 +6,7 @@ This is a Twitter backend clone built with Node.js using TypeScript, PostgreSQL,
 
 * User authentication and authorization with JSON Web Tokens (JWT).
 * CRUD operations for managing users, tweets, and comments.
-* Searching for users and tweets.
+* REST API documentation with OpenAPI - Swagger
 * Like and dislike tweets.
 * Follow and unfollow users.
 * Pagination for tweets and comments.
