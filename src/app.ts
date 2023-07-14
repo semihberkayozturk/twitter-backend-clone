@@ -34,7 +34,7 @@ app.use("/api/v1/tweet", tweetRoute);
 // Swagger configuration
 const swaggerDocument = YAML.load(fs.readFileSync(path.resolve(__dirname, "../src/doc/swagger.yaml"), "utf8"));
 
-app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))  ;
+app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this API!`, 404));
