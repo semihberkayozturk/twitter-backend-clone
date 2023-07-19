@@ -1,14 +1,11 @@
 import catchAsync from "../utils/catchAsync";
 import { Response,Request,NextFunction } from "express";
 import AppError from "../utils/appError";
-import { User} from "../types/user";
-import * as redis from "redis";
 import TweetModel from "../db/models/tweet";
+import { components } from "../types/openapi";
+import { getTweetById, deleteTweetById } from "../daos/tweetDao";
 
-let redisClient = redis.createClient({url:process.env.REDIS_URL})
-redisClient.on("connect",() => console.log("Redis Connection Is Successful!"));
-redisClient.on("err", (err:Error) => console.log("Redis Client Error:",err));
-redisClient.connect();
+type User = components["schemas"]["User"];
 
 export interface ReqWithBodyAndUser extends Request {
     user: User,
@@ -16,48 +13,34 @@ export interface ReqWithBodyAndUser extends Request {
 };
 
 export const getTweet = catchAsync(async(req:Request,res:Response,next:NextFunction) => {
-    let tweetId = req.params.id;
-    let cacheValue = await redisClient.get(`tweet:${tweetId}`);
-    if(cacheValue){
-        console.log("Serving from cache!");
+    const { id } = req.params;
+    try {
+        const tweet = await getTweetById(Number(id));
+        if (!tweet) {
+            return next(new AppError('Tweet not found!', 404));
+        }
         res.status(200).json({
             status:"success",
-            data:JSON.parse(cacheValue)
-        })
-    }else{
-        try {
-            const tweet = await TweetModel.findByPk(tweetId);
-            if (!tweet) {
-              return next(new AppError('Tweet not found!', 404));
-            }
-            await redisClient.set(`tweet:${tweetId}`, JSON.stringify(tweet));
-      
-            res.status(200).json({
-              status: 'success',
-              data: tweet,
-            });
-          }
-        catch (error) {
+            data:tweet
+        });
+    }
+    catch(error){
         next(error);
-        }
     }
 });
 
 export const deleteTweet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-      const tweet = await TweetModel.findByPk(id);
-      if (!tweet) {
-        return next(new AppError('Tweet was not found!', 404));
-      }
-      await tweet.destroy();
-      res.status(204).json({
-        status: 'success',
-        data: null,
-      });
-    } catch (error) {
-      next(error);
+        await deleteTweetById(Number(id));
+        res.status(204).json({
+            status:"success",
+            data:null
+        });
     }
+    catch(error){
+        next(error);
+    };
 });
 
 //should implement some functions to protectin etc. setEntryUserId etc.

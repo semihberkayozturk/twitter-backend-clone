@@ -24,9 +24,33 @@ export const getUserByUsername = async (username: string): Promise<User | null> 
     }
 };
 
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+    try {
+        const user = await UserModel.findOne({ where: { email } });
+        if (!user) {
+            throw new AppError('User not found!', 404);
+        }
+        return user;
+    } catch (error) {
+        throw new AppError('Error getting user!', 500);
+    }
+};
+
 export const deleteUserByUsername = async(username:string): Promise<void> => {
     try {
         const user = await UserModel.findOne({ where: { username } });
+        if (!user) {
+            throw new AppError('User not found!', 404);
+        }
+        await user.destroy();
+    } catch (error) {
+        throw new AppError('Error deleting user!', 500);
+    }
+};
+
+export const deleteUserById = async(id:string): Promise<void> => {
+    try {
+        const user = await UserModel.findOne({ where: { id } });
         if (!user) {
             throw new AppError('User not found!', 404);
         }

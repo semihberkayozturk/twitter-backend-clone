@@ -5,12 +5,13 @@ This is a Twitter backend clone built with Node.js using TypeScript, PostgreSQL,
 ## Features
 
 * User authentication and authorization with JSON Web Tokens (JWT).
+* Caching with Redis to improve performance.
 * CRUD operations for managing users, tweets, and comments.
 * REST API documentation with OpenAPI - Swagger
+* DAO Pattern
 * Like and dislike tweets.
 * Follow and unfollow users.
 * Pagination for tweets and comments.
-* Caching with Redis to improve performance.
 
 ## Technologies Used
 
