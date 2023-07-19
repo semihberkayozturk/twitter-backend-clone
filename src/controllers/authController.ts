@@ -4,7 +4,7 @@ import catchAsync from "../utils/catchAsync";
 import { ReqWithBodyAndUser } from './tweetController';
 import AppError from '../utils/appError';
 import { promisify } from 'util';
-import UserModel from '../db/models/user';
+import { getUserByUsername, createUser } from '../daos/userDao';
 
 export interface ReqWithUser extends Request {
     user: {

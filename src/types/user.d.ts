@@ -3,10 +3,10 @@ export interface User {
     username:string,
     email:string,
     password:string,
-    bio:string,
-    avatar:string,
-    phone:string,
-    status:string
+    bio:string | null,
+    avatar:string | null,
+    phone:string | null,
+    status:string | null,
 };
 
 export interface ReqWithUser extends Request {
