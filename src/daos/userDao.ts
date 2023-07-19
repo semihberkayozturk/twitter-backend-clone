@@ -1,16 +1,26 @@
-import { User } from "../types/user";
 import UserModel from '../db/models/user';
 import AppError from "../utils/appError";
-import {setAsync, getAsync} from "../db/redisImpl";
+import { hgetAsync, hsetAsync } from "../db/redisImpl";
+import { components } from "../types/openapi";
 
-//TODO: Replace them with OpenAPI models
-//Redis implementation
+type User = components["schemas"]["User"];
+
 export const getUserByUsername = async (username: string): Promise<User | null> => {
     try {
-      const user = await UserModel.findOne({ where: { username } });
-      return user;
+        const cachedUser = await hgetAsync('users', username);
+        if (cachedUser) {
+            return JSON.parse(cachedUser);
+        }
+        const user = await UserModel.findOne({ where: { username } });
+
+        if (!user) {
+            throw new AppError('User not found!', 404);
+        }
+
+        await hsetAsync('users', username, JSON.stringify(user));
+        return user;
     } catch (error) {
-      throw new AppError('Error retrieving user!', 500);
+        throw new AppError('Error getting user!', 500);
     }
 };
 
@@ -28,18 +38,16 @@ export const deleteUserByUsername = async(username:string): Promise<void> => {
 
 //Partial makes all properties of an object optional
 export const updateUserByUsername = async(username:string, updatedUser:Partial<User>): Promise<void> => {
-    try {
-        const user = await UserModel.findOne({ where: { username } });
-        if (!user) {
-            throw new AppError('User not found!', 404);
-        }
-        await user.update(updatedUser);
-    } catch (error) {
-        throw new AppError('Error updating user!', 500);
+    const user = await UserModel.findOne({ where: { username } });
+    if (!user) {
+        throw new AppError('User not found!', 404);
     }
+    await user.update(updatedUser);
+
+    await hsetAsync(username, JSON.stringify(user));
 };
 
-export const createUser = async (user: User): Promise<User> => {
+export const createUser = async (user: components["schemas"]["User"]): Promise<User> => {
     try {
         const newUser = await UserModel.create(user);
         return newUser;

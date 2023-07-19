@@ -9,7 +9,10 @@ const redisClient = redis.createClient({
 redisClient.on('connect', () => console.log('Redis Connection Is Successful!'));
 redisClient.on('error', (err: Error) => console.log('Redis Client Error:', err));
 
-const getAsync = promisify(redisClient.get).bind(redisClient);
-const setAsync = promisify(redisClient.set).bind(redisClient);
+const getAsync = promisify(redisClient.GET).bind(redisClient);
+const setAsync = promisify(redisClient.SET).bind(redisClient);
 
-export { getAsync, setAsync, redisClient };
+const hgetAsync = promisify(redisClient.HGET).bind(redisClient);
+const hsetAsync = promisify(redisClient.HSET).bind(redisClient);
+
+export { getAsync, setAsync, redisClient, hgetAsync, hsetAsync };

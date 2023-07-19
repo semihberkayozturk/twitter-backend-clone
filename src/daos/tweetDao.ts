@@ -1,6 +1,9 @@
-import TweetModel from "../db/models/tweet";
 import AppError from "../utils/appError";
 import {getAsync, setAsync} from "../db/redisImpl";
+import {components} from "../types/openapi";
+import TweetModel from "../db/models/tweet";
+
+type Tweet = components['schemas']['Tweet'];
 
 export const getTweetById = async (tweetId: number)  => {
     try {
@@ -33,7 +36,7 @@ export const deleteTweetById = async (tweetId: number) => {
     }
 };
 
-export const updateTweetById = async (tweetId: number, updatedTweet: Partial<TweetModel>) => {
+export const updateTweetById = async (tweetId: number, updatedTweet: Partial<Tweet>) => {
     try {
         const tweet = await TweetModel.findByPk(tweetId);
         if (!tweet) {
